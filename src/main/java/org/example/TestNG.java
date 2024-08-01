@@ -39,8 +39,11 @@ public class TestNG {
     }
 
     @AfterClass
-    public void afterClass() {
-        //driver.quit();
+    public void afterClass() throws InterruptedException{
+
+        Thread.sleep(1000);
+        driver.quit();
+
     }
 
     @Test
@@ -49,7 +52,7 @@ public class TestNG {
 
         driver.get("http://www.google.com");
 
-        String search_text = "Google Suche";
+        String search_text = "Căutare Google";
         WebElement search_button = driver.findElement(By.name("btnK"));
 
         String text = search_button.getAttribute("value");
@@ -63,11 +66,9 @@ public class TestNG {
         cookie.click();
 
         WebElement search = driver.findElement(By.name("q"));
-        search.sendKeys("SELENIUM !");
+        search.sendKeys("java SELENIUM !");
         search.submit();
 
-
-
-
+        driver.findElement(By.id("rso")).findElements(By.xpath("/*")).get(0).click();
     }
 }
