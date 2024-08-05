@@ -51,7 +51,9 @@ public class Explore {
 
     @Test
     public void SomethingToTest() {
+        driver.get("https://ancabota09.wixsite.com/intern");
 
+        driver.manage().timeouts().implicitlyWait(Duration.of(10, ChronoUnit.SECONDS));
     }
 
 
