@@ -38,6 +38,7 @@ public class Calendar {
         options.addArguments("--disable-search-engine-choice-screen");
         // options.addArguments("--remote-allow-origins=*");
         driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
     }
 
     @AfterClass
@@ -64,8 +65,6 @@ public class Calendar {
         driver.findElement(By.id("check-in")).click();
         WebElement checkInField = driver.findElement(By.id("check-in"));
 
-        WebElement checkOutField = driver.findElement(By.id("check-out"));
-
         checkInField.click();
 
         driver.switchTo().defaultContent(); //back to main
@@ -76,7 +75,6 @@ public class Calendar {
         LocalDate yesterday = today.minusDays(1);
         LocalDate tomorrow = today.plusDays(1);
         LocalDate threeDaysFromNow = today.plusDays(3);
-
         LocalDate fourDaysFromNow = today.plusDays(4);
         LocalDate fiveDaysFromNow = today.plusDays(5);
 
@@ -93,18 +91,26 @@ public class Calendar {
 
         driver.switchTo().defaultContent(); //back to main
         WebElement checkOutFrame = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("U73P_q")));
-        driver.switchTo().frame(checkOutFrame);
+        driver.switchTo().frame(checkOutFrame); //to check-out frame
 
 
-        LocalDate[] datesToCheck = {today, yesterday, tomorrow, threeDaysFromNow, fourDaysFromNow, fiveDaysFromNow};
+        LocalDate[] datesToCheck = {today, yesterday, tomorrow, threeDaysFromNow, fourDaysFromNow , fiveDaysFromNow};
+
+        WebElement dateButtonCheckOut = null;
 
         for (LocalDate date : datesToCheck) {
             String newFormattedDate = date.format(formatter);
             String newXPath = String.format("//button[@aria-label='%s']", newFormattedDate);
 
             WebElement dateButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(newXPath)));
-            String ariaLabel = dateButton.getAttribute("aria-label");
-            boolean isDisabled = dateButton.getAttribute("disabled") != null || dateButton.getAttribute("ng-disabled") != null;
+            String ariaLabel = null;
+            try {
+                ariaLabel = dateButton.getAttribute("aria-label");
+            } catch (Exception e) {
+                System.out.println("problem finding the date");
+            }
+            boolean isDisabled = dateButton.getAttribute("disabled") != null;// || dateButton.getAttribute("ng-disabled") != null;
+
 
             System.out.println("Button with aria-label '" + ariaLabel + "' disabled: " + isDisabled);
 
@@ -113,10 +119,29 @@ public class Calendar {
             } else {
                 Assert.assertFalse(isDisabled, "Button with aria-label '" + ariaLabel + "' should not be disabled but is.");
             }
+
+            dateButtonCheckOut = dateButton;
         }
 
+        //last date to check from the array is four days from now, a valid date
+        if(dateButtonCheckOut != null) {
+            dateButtonCheckOut.click();
 
+        }
+        else{
+            System.out.println("Something went wrong with the check out button");
+        }
 
+        driver.switchTo().defaultContent();
+        WebDriver calendarFrame = wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.xpath("//*[@id=\"i6kppi75\"]/iframe")));
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH);
+
+        String verifyCheckOut = driver.findElement(By.id("check-out-value")).getText();
+        String verifyCheckIn = driver.findElement(By.id("check-in-value")).getText();
+
+        Assert.assertEquals(today.format(timeFormatter),verifyCheckIn,"The date of check-in was not selected");
+        Assert.assertEquals(fiveDaysFromNow.format(timeFormatter),verifyCheckOut,"The date of check-out was not selected");
 
     }
 
