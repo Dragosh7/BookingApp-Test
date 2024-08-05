@@ -54,6 +54,8 @@ public class Explore {
         driver.get("https://ancabota09.wixsite.com/intern");
 
         driver.manage().timeouts().implicitlyWait(Duration.of(10, ChronoUnit.SECONDS));
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
 
