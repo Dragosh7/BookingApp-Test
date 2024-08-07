@@ -23,6 +23,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 //--
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
 
 
 public class Footer {
@@ -156,5 +157,72 @@ public class Footer {
 
 
     }}
+
+    @Test
+    public void socialMediaButtons() throws InterruptedException {
+
+        driver.get("https://ancabota09.wixsite.com/intern");
+
+        driver.manage().timeouts().implicitlyWait(Duration.of(10, ChronoUnit.SECONDS));
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        SoftAssert softAssert = new SoftAssert();
+
+        WebElement facebook = driver.findElement(By.xpath("//*[@id=\"img_0_i6rlbitx\"]/img"));
+        softAssert.assertTrue(facebook.isDisplayed(), "facebook is not displayed");
+
+        String homePageWindow = driver.getWindowHandle();
+
+        String url = driver.getCurrentUrl();
+        facebook.click();
+        switchToNewWindow();
+        String newUrl = driver.getCurrentUrl();
+
+        softAssert.assertNotEquals(url,newUrl,"facebook link was not accesed ");
+        String expectedUrl = "https://www.facebook.com/wix";
+        softAssert.assertEquals(newUrl, expectedUrl, "incorrect facebook link");
+        driver.close();
+        driver.switchTo().window(homePageWindow);
+
+        driver.get(url);
+        WebElement twitter = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"img_1_i6rlbitx\"]/img")));
+        softAssert.assertTrue(twitter.isDisplayed(), "twitter is not displayed");
+
+        twitter.click();
+        switchToNewWindow();
+        newUrl = driver.getCurrentUrl();
+
+        softAssert.assertNotEquals(url,newUrl,"twitter link was not accesed ");
+        expectedUrl = "https://x.com/wix?mx=2";
+        softAssert.assertEquals(newUrl, expectedUrl, "incorrect twitter link");
+        driver.close();
+        driver.switchTo().window(homePageWindow);
+
+        driver.get(url);
+        WebElement pinterest = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"img_2_i6rlbitx\"]/img")));
+        softAssert.assertTrue(pinterest.isDisplayed(), "pinterest is not displayed");
+
+        pinterest.click();
+        switchToNewWindow();
+        newUrl = driver.getCurrentUrl();
+
+        softAssert.assertNotEquals(url,newUrl,"pinterest link was not accesed ");
+        expectedUrl = "https://www.pinterest.com/wixcom/";
+        softAssert.assertEquals(newUrl, expectedUrl, "incorrect pinterest link");
+        driver.close();
+        driver.switchTo().window(homePageWindow);
+
+
+        softAssert.assertAll();
+    }
+
+    private void switchToNewWindow() {
+        for (String windowHandle : driver.getWindowHandles()) {
+            if (!windowHandle.equals(driver.getWindowHandle())) {
+                driver.switchTo().window(windowHandle);
+                break;
+            }
+        }
+    }
 
 }
