@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import io.opentelemetry.exporter.logging.SystemOutLogRecordExporter;
 import org.openqa.selenium.By;
 //--
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 //--
 import org.openqa.selenium.WebElement;
@@ -191,9 +192,9 @@ public class ContactPage {
         softAssert.assertEquals(phoneField.getAttribute("aria-invalid"), "true","The form accepted an invalid phone");
 
         phoneField.clear();
-        System.out.println(phoneField.getText());
+        phoneField.sendKeys(Keys.CONTROL + "a");
+        phoneField.sendKeys(Keys.DELETE);
         phoneField.sendKeys("qwerty");
-        System.out.println(phoneField.getText());
 
         wait.until(ExpectedConditions.textToBePresentInElementValue(phoneField, "qwerty"));
         submitButton.click();
