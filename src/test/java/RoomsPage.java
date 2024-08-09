@@ -51,6 +51,31 @@ public class RoomsPage {
 
     }
 
+    private void clickWithRetry(String xpath) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        int attempts = 0;
+        boolean success = false;
+        while (attempts < 5) {
+            try {
+                WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
+                element.click();
+                success = true;
+                break;
+            } catch (org.openqa.selenium.StaleElementReferenceException e) {
+                attempts++;
+                // Wait a bit before retrying
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        if (!success) {
+            throw new org.openqa.selenium.WebDriverException("Failed to click element after multiple attempts: " + xpath);
+        }
+    }
+
     @Test
     public void allRooms() throws InterruptedException {
         SoftAssert softAssert = new SoftAssert();
@@ -130,6 +155,125 @@ public class RoomsPage {
 
         softAssert.assertAll();
 
+
+    }
+
+    @Test
+    public void adultsFilter() throws InterruptedException {
+        SoftAssert softAssert = new SoftAssert();
+        driver.get("https://ancabota09.wixsite.com/intern");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        WebElement button = driver.findElement(By.id("i6kl732v2label"));
+        button.click();
+
+        //int maxAdults = getMaxAccomodates();
+        int maxAdults = 6;
+
+        driver.get("https://ancabota09.wixsite.com/intern/rooms");
+        driver.switchTo().defaultContent();
+        WebElement iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+        driver.switchTo().frame(iframe);
+
+        Thread.sleep(5000);
+
+        driver.findElement(By.cssSelector("#check-in > .calendar-button")).click();
+
+        LocalDate today = LocalDate.now();
+        LocalDate fiveDaysFromNow = today.plusDays(5);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d, EEEE MMMM yyyy", Locale.ENGLISH);
+        String formattedDate = today.format(formatter);
+
+        String xpath = String.format("//button[@aria-label='%s']", formattedDate);
+        System.out.println(xpath);
+        clickWithRetry(xpath); //check in date button to set
+
+        driver.switchTo().defaultContent(); //back to main
+        iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+        driver.switchTo().frame(iframe);
+
+        Thread.sleep(3000);
+        formattedDate = fiveDaysFromNow.format(formatter);
+        xpath = String.format("//button[@aria-label='%s']", formattedDate);
+        System.out.println(xpath);
+        //clickWithRetry(xpath); //check out date button to set
+        driver.findElements(By.xpath(xpath)).get(1).click();
+
+        driver.switchTo().defaultContent();
+        iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+        driver.switchTo().frame(iframe);
+        WebElement adultsButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"adults\"]")));
+
+
+        WebElement adultsButtonIncr = driver.findElement(By.cssSelector("#adults > .up"));
+
+        for (int i = 0; i < maxAdults+1; i++) {
+            adultsButtonIncr.click();
+        }
+
+        driver.findElement(By.cssSelector("ul li.search-btn button.search.s-button")).click();
+        Thread.sleep(3000);
+        List<WebElement> rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
+
+        softAssert.assertTrue(rooms.isEmpty(),"No rooms and try another search should have been displayed");
+
+
+        softAssert.assertAll();
+
+    }
+
+
+    public int getMaxAccomodates() throws InterruptedException {
+        driver.get("https://ancabota09.wixsite.com/intern/rooms");
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        Thread.sleep(10000);
+
+        WebElement iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+        driver.switchTo().frame(iframe);
+
+        int maxAccommodates = 0;
+
+        List<WebElement> rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
+
+        for (int i = 0; i < rooms.size(); i++) {
+            // because DOM changes it needs to re-fetch the list of rooms each time
+            rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
+            WebElement room = rooms.get(i);
+
+            WebElement titleElement = room.findElement(By.cssSelector("h3 a.s-title .strans"));
+            String title = titleElement.getText();
+
+            WebElement roomPageButton = room.findElement(By.cssSelector("button.fancy-btn.s-button"));
+            roomPageButton.click();
+
+            driver.switchTo().defaultContent();
+            iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+            driver.switchTo().frame(iframe);
+
+            WebElement roomAccommodates = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("li.accomodates > span[ng-bind='room.maxPersons']")));
+            String accommodatesText = roomAccommodates.getText();
+
+            int accommodates = Integer.parseInt(accommodatesText);
+            if (accommodates > maxAccommodates) {
+                maxAccommodates = accommodates;
+            }
+
+            System.out.println("Room Title: " + title);
+            System.out.println("Room accommodates: " + accommodates);
+            System.out.println("------------------------");
+
+
+            driver.get("https://ancabota09.wixsite.com/intern/rooms");
+            iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+            driver.switchTo().frame(iframe);
+
+            Thread.sleep(5000);
+        }
+
+        return maxAccommodates;
 
     }
 
