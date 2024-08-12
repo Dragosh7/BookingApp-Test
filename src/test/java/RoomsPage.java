@@ -159,7 +159,7 @@ public class RoomsPage {
     }
 
     @Test
-    public void adultsFilter() throws InterruptedException {
+    public void accomodatesFilter() throws InterruptedException {
         SoftAssert softAssert = new SoftAssert();
         driver.get("https://ancabota09.wixsite.com/intern");
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -250,6 +250,67 @@ public class RoomsPage {
 
     }
 
+    @Test
+    public void roomsDetails() throws InterruptedException {
+        SoftAssert softAssert = new SoftAssert();
+        driver.get("https://ancabota09.wixsite.com/intern");
+
+        WebElement button = driver.findElement(By.id("i6kl732v2label"));
+        driver.manage().timeouts().implicitlyWait(Duration.of(10, ChronoUnit.SECONDS));
+
+        softAssert.assertTrue(button.isDisplayed());
+
+        button.click();
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.urlContains("https://ancabota09.wixsite.com/intern/rooms"));
+
+        String currentUrl = driver.getCurrentUrl();
+        softAssert.assertEquals(currentUrl, "https://ancabota09.wixsite.com/intern/rooms", "Bad redirect");
+
+        Thread.sleep(10000);
+
+        WebElement iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+        driver.switchTo().frame(iframe);
+
+        List<WebElement> rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
+
+        for (int i = 0; i < rooms.size(); i++) {
+            // because DOM changes it needs to re-fetch the list of rooms each time
+            rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
+            WebElement room = rooms.get(i);
+
+            WebElement titleElement = room.findElement(By.cssSelector("h3 a.s-title .strans"));
+            String title = titleElement.getText();
+
+            WebElement roomPageButton = room.findElement(By.cssSelector("button.fancy-btn.s-button"));
+            roomPageButton.click();
+
+            Thread.sleep(5000);
+            driver.switchTo().defaultContent();
+            iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+            driver.switchTo().frame(iframe);
+
+            WebElement roomTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("h2.s-title span")));
+
+
+            System.out.println("Room Title: " + title);
+            System.out.println("Room Title on the more info page: " + roomTitle.getText());
+            System.out.println("------------------------");
+
+
+            softAssert.assertEquals(title, roomTitle.getText(), "The room page opened did not correspond with what the user clicked");
+
+            driver.get("https://ancabota09.wixsite.com/intern/rooms");
+            iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+            driver.switchTo().frame(iframe);
+
+            Thread.sleep(5000);
+
+
+        }
+        softAssert.assertAll();
+    }
 
     public int getMaxAccomodates() throws InterruptedException {
 
