@@ -167,8 +167,8 @@ public class RoomsPage {
         WebElement button = driver.findElement(By.id("i6kl732v2label"));
         button.click();
 
-        //int maxAdults = getMaxAccomodates();
-        int maxAdults = 6;
+        int maxAdults = getMaxAccomodates();
+        //int maxAdults = 6;
 
         driver.get("https://ancabota09.wixsite.com/intern/rooms");
         driver.switchTo().defaultContent();
@@ -219,12 +219,40 @@ public class RoomsPage {
         softAssert.assertTrue(rooms.isEmpty(),"No rooms and try another search should have been displayed");
 
 
+
+        WebElement adultsButtonDecr = driver.findElement(By.cssSelector("#adults > .down"));
+
+        for (int i = 0; i < maxAdults; i++) {
+            adultsButtonDecr.click();
+        }
+
+        driver.findElement(By.cssSelector("ul li.search-btn button.search.s-button")).click();
+        Thread.sleep(3000);
+        rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
+
+        softAssert.assertFalse(rooms.isEmpty(),"There are rooms available with the current number of adults, but they were not found");
+
+
+        //search with kids
+        WebElement kidsButtonIncr = driver.findElement(By.cssSelector("#children > .up"));
+        kidsButtonIncr.click();
+
+
+        driver.findElement(By.cssSelector("ul li.search-btn button.search.s-button")).click();
+        Thread.sleep(3000);
+        rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
+
+        softAssert.assertFalse(rooms.isEmpty(),"There are rooms available with the current number of accomodates, but they were not found");
+
+
+
         softAssert.assertAll();
 
     }
 
 
     public int getMaxAccomodates() throws InterruptedException {
+
         driver.get("https://ancabota09.wixsite.com/intern/rooms");
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
