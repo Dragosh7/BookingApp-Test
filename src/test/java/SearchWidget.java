@@ -75,7 +75,7 @@ public class SearchWidget {
         }
     }
     @Test
-    public void Calendar() {
+    public void Calendar() throws InterruptedException {
 
 
         driver.get("https://ancabota09.wixsite.com/intern");
@@ -87,7 +87,7 @@ public class SearchWidget {
         // i frame       search widget id : i6kppi75
         driver.switchTo().frame(iframe);
 
-        driver.findElement(By.id("check-in")).click();
+        //driver.findElement(By.id("check-in")).click();
         WebElement checkInField = driver.findElement(By.id("check-in"));
 
         checkInField.click();
@@ -125,6 +125,7 @@ public class SearchWidget {
         WebElement dateButtonCheckOut = null;
 
         for (LocalDate date : datesToCheck) {
+            Thread.sleep(1000);
             String newFormattedDate = date.format(formatter);
             String newXPath = String.format("//button[@aria-label='%s']", newFormattedDate);
 
