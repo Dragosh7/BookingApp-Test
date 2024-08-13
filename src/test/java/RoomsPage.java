@@ -18,6 +18,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 //--
 import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -311,6 +312,114 @@ public class RoomsPage {
         }
         softAssert.assertAll();
     }
+
+    @Test
+    public void bookRoom() throws InterruptedException {
+        SoftAssert softAssert = new SoftAssert();
+        driver.get("https://ancabota09.wixsite.com/intern");
+
+        WebElement button = driver.findElement(By.id("i6kl732v2label"));
+        driver.manage().timeouts().implicitlyWait(Duration.of(10, ChronoUnit.SECONDS));
+
+        Assert.assertTrue(button.isDisplayed());
+        button.click();
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.urlContains("https://ancabota09.wixsite.com/intern/rooms"));
+
+        String currentUrl = driver.getCurrentUrl();
+        Assert.assertEquals(currentUrl, "https://ancabota09.wixsite.com/intern/rooms", "Bad redirect");
+
+        Thread.sleep(10000);
+
+        WebElement iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+        driver.switchTo().frame(iframe);
+
+        List<WebElement> rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
+        Actions actions = new Actions(driver);
+
+        for (int i = 0; i < rooms.size(); i++) {
+            // because DOM changes it needs to re-fetch the list of rooms each time
+            rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
+            WebElement room = rooms.get(i);
+
+            WebElement titleElement = room.findElement(By.cssSelector("h3 a.s-title .strans"));
+            String title = titleElement.getText();
+
+            WebElement roomPageButton = room.findElement(By.cssSelector("button.fancy-btn.s-button"));
+            roomPageButton.click();
+
+            Thread.sleep(5000);
+            driver.switchTo().defaultContent();
+            iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"i6klgqap_0\"]/iframe")));
+            driver.switchTo().frame(iframe);
+
+            WebElement roomAccommodates = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("li.accomodates > span[ng-bind='room.maxPersons']")));
+            String accommodatesText = roomAccommodates.getText();
+            int accommodates = Integer.parseInt(accommodatesText);
+
+            driver.findElement(By.id("check-in")).click();
+
+            LocalDate today = LocalDate.now();
+            LocalDate fiveDaysFromNow = today.plusDays(5);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d, EEEE MMMM yyyy", Locale.ENGLISH);
+
+            WebElement dateButtonCheckIn = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(String.format("//button[@aria-label='%s']", today.format(formatter)))));
+            dateButtonCheckIn.click();
+
+            Thread.sleep(5000);
+
+
+            List<WebElement> dateButtonCheckOut = driver.findElements(By.xpath(String.format("//button[@aria-label='%s']", fiveDaysFromNow.format(formatter))));
+            dateButtonCheckOut.get(1).click();
+
+            WebElement adultsButtonIncr = driver.findElement(By.cssSelector("#adults > .up"));
+            if(accommodates>2) {
+                adultsButtonIncr.click();
+            }
+
+            WebElement bookNowBtn = driver.findElement(By.cssSelector("div button.fancy-btn.s-button.button"));
+            softAssert.assertTrue(bookNowBtn.isDisplayed());
+
+            //less adults than max capacity
+            actions.moveToElement(bookNowBtn).perform();
+            WebElement tooltip = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".tooltip.left.in.fade")));
+
+            String tooltipText = tooltip.getText();
+            softAssert.assertEquals(tooltipText, "Please contact the hotel directly to book your room.", "Tooltip text is incorrect!");
+
+            Thread.sleep(2000);
+            adultsButtonIncr = driver.findElement(By.cssSelector("#adults > .up"));
+            while(accommodates>=2) {
+                adultsButtonIncr.click();
+                accommodates--;
+            }
+
+            bookNowBtn = driver.findElement(By.cssSelector("div button.fancy-btn.s-button.button"));
+            softAssert.assertTrue(bookNowBtn.isDisplayed());
+
+            //selected adults at max capacity
+            actions.moveToElement(bookNowBtn).perform();
+            tooltip = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".tooltip.left.in.fade")));
+
+            tooltipText = tooltip.getText();
+            softAssert.assertEquals(tooltipText, "Please contact the hotel directly to book your room.", "Tooltip text is incorrect!");
+
+            System.out.println("Room Title: " + title);
+            System.out.println("------------------------");
+
+
+            driver.get("https://ancabota09.wixsite.com/intern/rooms");
+            iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+            driver.switchTo().frame(iframe);
+
+            Thread.sleep(5000);
+
+
+        }
+        softAssert.assertAll();
+    }
+
 
     public int getMaxAccomodates() throws InterruptedException {
 
