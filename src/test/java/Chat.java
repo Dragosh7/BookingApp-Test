@@ -52,7 +52,7 @@ public class Chat {
     }
 
     @Test
-    public void explorePage() throws InterruptedException {
+    public void chatRoom() throws InterruptedException {
         SoftAssert softAssert = new SoftAssert();
         driver.get("https://ancabota09.wixsite.com/intern");
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
