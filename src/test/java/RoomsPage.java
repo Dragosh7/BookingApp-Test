@@ -4,12 +4,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 //--
-import io.opentelemetry.exporter.logging.SystemOutLogRecordExporter;
 import org.openqa.selenium.By;
 //--
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 //--
 import org.openqa.selenium.WebElement;
@@ -17,7 +14,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 //--
-import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -78,7 +74,7 @@ public class RoomsPage {
     }
 
     @Test
-    public void allRooms() throws InterruptedException {
+    public void viewAllRooms() throws InterruptedException {
         SoftAssert softAssert = new SoftAssert();
         driver.get("https://ancabota09.wixsite.com/intern");
 
@@ -252,7 +248,7 @@ public class RoomsPage {
     }
 
     @Test
-    public void roomsDetails() throws InterruptedException {
+    public void roomsLinkPage() throws InterruptedException {
         SoftAssert softAssert = new SoftAssert();
         driver.get("https://ancabota09.wixsite.com/intern");
 
@@ -406,6 +402,102 @@ public class RoomsPage {
             softAssert.assertEquals(tooltipText, "Please contact the hotel directly to book your room.", "Tooltip text is incorrect!");
 
             System.out.println("Room Title: " + title);
+            System.out.println("------------------------");
+
+
+            driver.get("https://ancabota09.wixsite.com/intern/rooms");
+            iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+            driver.switchTo().frame(iframe);
+
+            Thread.sleep(5000);
+
+
+        }
+        softAssert.assertAll();
+    }
+
+    @Test
+    public void roomsDetails() throws InterruptedException {
+        SoftAssert softAssert = new SoftAssert();
+        driver.get("https://ancabota09.wixsite.com/intern");
+
+        WebElement button = driver.findElement(By.id("i6kl732v2label"));
+        driver.manage().timeouts().implicitlyWait(Duration.of(10, ChronoUnit.SECONDS));
+
+        Assert.assertTrue(button.isDisplayed());
+
+        button.click();
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.urlContains("https://ancabota09.wixsite.com/intern/rooms"));
+
+        String currentUrl = driver.getCurrentUrl();
+        Assert.assertEquals(currentUrl, "https://ancabota09.wixsite.com/intern/rooms", "Bad redirect");
+
+        Thread.sleep(10000);
+
+        WebElement iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+        driver.switchTo().frame(iframe);
+
+        List<WebElement> rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
+
+        for (int i = 0; i < rooms.size(); i++) {
+            // because DOM changes it needs to re-fetch the list of rooms each time
+            rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
+            WebElement room = rooms.get(i);
+
+            WebElement titleElement = room.findElement(By.cssSelector("h3 a.s-title .strans"));
+            String title = titleElement.getText();
+
+            WebElement roomPageButton = room.findElement(By.cssSelector("button.fancy-btn.s-button"));
+            roomPageButton.click();
+
+            Thread.sleep(5000);
+            driver.switchTo().defaultContent();
+            iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
+            driver.switchTo().frame(iframe);
+
+            WebElement roomTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("h2.s-title span")));
+
+            WebElement roomAccommodates = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("li.accomodates > span[ng-bind='room.maxPersons']")));
+
+            WebElement size = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("li.size > abbr")));
+
+            WebElement image = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.preview.single img")));
+
+            WebElement contentBlock = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".content-block.s-separator.terms.clearfix")));
+            WebElement checkInTimeElement = contentBlock.findElement(By.cssSelector(".features li:nth-child(1) span:last-child"));
+            WebElement checkOutTimeElement = driver.findElement(By.cssSelector(".features li:nth-child(2) span:last-child"));
+            String checkInTime = checkInTimeElement.getText().trim();
+            String checkOutTime = checkOutTimeElement.getText().trim();
+
+            WebElement policies = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("li.policy-link a.policies")));
+
+
+            WebElement featuresSection = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".features")));
+            WebElement bedsElement = featuresSection.findElement(By.cssSelector(".beds"));
+            List<WebElement> bedElements = driver.findElements(By.cssSelector("li.beds span.bed"));
+            StringBuilder beds = new StringBuilder();
+            for (WebElement bedElement : bedElements) {
+                beds.append(bedElement.getText()).append(" ");
+            }
+
+            softAssert.assertTrue(roomAccommodates.isDisplayed(),"The number of accomodates is not shown");
+            softAssert.assertTrue(size.isDisplayed(),"The size is not shown");
+            softAssert.assertTrue(beds.isEmpty(),"The beds are not shown");
+            softAssert.assertTrue(image.isDisplayed(),"The image is not shown");
+            softAssert.assertFalse(checkInTime.isEmpty(), "Check-In time is not shown");
+            softAssert.assertFalse(checkOutTime.isEmpty(),  "Check-Out time is not shown");
+            softAssert.assertTrue(policies.isDisplayed(),"The read policy link is not shown");
+
+            System.out.println("Room Title: " + roomTitle.getText());
+            System.out.println("Room Accommodates: " + Integer.parseInt(roomAccommodates.getText()));
+            System.out.println("Room Size: " + size.getText() + "sq m");
+            System.out.println("Room Beds: " + beds);
+            System.out.println("Room Image Link: " + image.getText());
+            System.out.println("Room Check In: " + checkInTime);
+            System.out.println("Room Check Out: " + checkOutTime);
+            System.out.println("Room Policies: " + policies.getAttribute("href"));
             System.out.println("------------------------");
 
 
