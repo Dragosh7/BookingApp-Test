@@ -41,7 +41,7 @@ public class RoomsPage {
     }
 
     @AfterClass
-    public void afterClass() throws InterruptedException{
+    public void afterClass() throws InterruptedException {
 
         Thread.sleep(1000);
         driver.quit();
@@ -104,8 +104,8 @@ public class RoomsPage {
 
             WebElement thumbnailElement = room.findElement(By.cssSelector("img.thumbnail"));
             String thumbnailUrl = thumbnailElement.getAttribute("src");
-            softAssert.assertTrue(thumbnailElement.isDisplayed(),String.format("image not displayed for the room '%s'", title));
-            softAssert.assertNotNull(thumbnailUrl,String.format("image link is null for the room '%s'", title));
+            softAssert.assertTrue(thumbnailElement.isDisplayed(), String.format("image not displayed for the room '%s'", title));
+            softAssert.assertNotNull(thumbnailUrl, String.format("image link is null for the room '%s'", title));
 
             WebElement sizeElement = room.findElement(By.cssSelector("li.size abbr"));
             String size = sizeElement.getText();
@@ -125,19 +125,21 @@ public class RoomsPage {
                 amenities.append(amenityElement.getAttribute("tooltip")).append(", ");
             }
             if (!amenities.isEmpty()) {
-                amenities.deleteCharAt(amenities.lastIndexOf(", "));}
+                amenities.deleteCharAt(amenities.lastIndexOf(", "));
+            }
             if (!beds.isEmpty()) {
-                beds.deleteCharAt(beds.lastIndexOf(", "));}
+                beds.deleteCharAt(beds.lastIndexOf(", "));
+            }
 
             WebElement priceElement = room.findElement(By.cssSelector(".s-separator.price .value"));
             String price = priceElement.getText();
 
-            softAssert.assertNotNull(title,"room title does not exist");
-            softAssert.assertNotNull(size,String.format("size field does not exist for room '%s'", title));
-            softAssert.assertTrue(description.length() > 5,String.format("description not found or too short for the room '%s'", title));
-            softAssert.assertTrue(beds.length()>1,String.format("room '%s' does not have beds", title));
-            softAssert.assertTrue( Integer.parseInt(price.replaceAll("[^\\d]", "")) > 1,String.format("price too low, probably a mistake 😁 '%s'", title));
-            softAssert.assertNotNull(amenities,String.format("room does not have any amenities set '%s'", title));
+            softAssert.assertNotNull(title, "room title does not exist");
+            softAssert.assertNotNull(size, String.format("size field does not exist for room '%s'", title));
+            softAssert.assertTrue(description.length() > 5, String.format("description not found or too short for the room '%s'", title));
+            softAssert.assertTrue(beds.length() > 1, String.format("room '%s' does not have beds", title));
+            softAssert.assertTrue(Integer.parseInt(price.replaceAll("[^\\d]", "")) > 1, String.format("price too low, probably a mistake 😁 '%s'", title));
+            softAssert.assertNotNull(amenities, String.format("room does not have any amenities set '%s'", title));
 
             System.out.println("Room Title: " + title);
             System.out.println("Description: " + description);
@@ -205,7 +207,7 @@ public class RoomsPage {
 
         WebElement adultsButtonIncr = driver.findElement(By.cssSelector("#adults > .up"));
 
-        for (int i = 0; i < maxAdults+1; i++) {
+        for (int i = 0; i < maxAdults + 1; i++) {
             adultsButtonIncr.click();
         }
 
@@ -213,8 +215,7 @@ public class RoomsPage {
         Thread.sleep(3000);
         List<WebElement> rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
 
-        softAssert.assertTrue(rooms.isEmpty(),"No rooms and try another search should have been displayed");
-
+        softAssert.assertTrue(rooms.isEmpty(), "No rooms and try another search should have been displayed");
 
 
         WebElement adultsButtonDecr = driver.findElement(By.cssSelector("#adults > .down"));
@@ -227,7 +228,7 @@ public class RoomsPage {
         Thread.sleep(3000);
         rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
 
-        softAssert.assertFalse(rooms.isEmpty(),"There are rooms available with the current number of adults, but they were not found");
+        softAssert.assertFalse(rooms.isEmpty(), "There are rooms available with the current number of adults, but they were not found");
 
 
         //search with kids
@@ -239,8 +240,7 @@ public class RoomsPage {
         Thread.sleep(3000);
         rooms = driver.findElements(By.cssSelector("li.room.s-separator"));
 
-        softAssert.assertFalse(rooms.isEmpty(),"There are rooms available with the current number of accomodates, but they were not found");
-
+        softAssert.assertFalse(rooms.isEmpty(), "There are rooms available with the current number of accomodates, but they were not found");
 
 
         softAssert.assertAll();
@@ -370,7 +370,7 @@ public class RoomsPage {
             dateButtonCheckOut.get(1).click();
 
             WebElement adultsButtonIncr = driver.findElement(By.cssSelector("#adults > .up"));
-            if(accommodates>2) {
+            if (accommodates > 2) {
                 adultsButtonIncr.click();
             }
 
@@ -386,7 +386,7 @@ public class RoomsPage {
 
             Thread.sleep(2000);
             adultsButtonIncr = driver.findElement(By.cssSelector("#adults > .up"));
-            while(accommodates>=2) {
+            while (accommodates >= 2) {
                 adultsButtonIncr.click();
                 accommodates--;
             }
@@ -457,47 +457,163 @@ public class RoomsPage {
             iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
             driver.switchTo().frame(iframe);
 
-            WebElement roomTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("h2.s-title span")));
-
-            WebElement roomAccommodates = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("li.accomodates > span[ng-bind='room.maxPersons']")));
-
-            WebElement size = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("li.size > abbr")));
-
-            WebElement image = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.preview.single img")));
-
-            WebElement contentBlock = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".content-block.s-separator.terms.clearfix")));
-            WebElement checkInTimeElement = contentBlock.findElement(By.cssSelector(".features li:nth-child(1) span:last-child"));
-            WebElement checkOutTimeElement = driver.findElement(By.cssSelector(".features li:nth-child(2) span:last-child"));
-            String checkInTime = checkInTimeElement.getText().trim();
-            String checkOutTime = checkOutTimeElement.getText().trim();
-
-            WebElement policies = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("li.policy-link a.policies")));
-
-
-            WebElement featuresSection = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".features")));
-            WebElement bedsElement = featuresSection.findElement(By.cssSelector(".beds"));
-            List<WebElement> bedElements = driver.findElements(By.cssSelector("li.beds span.bed"));
+            WebElement roomTitle = null, roomAccommodates = null, size = null, image = null, contentBlock = null,
+                    checkInTimeElement = null, checkOutTimeElement = null, featuresSection = null,
+                    policies = null, bedsElement = null, desc = null, price = null, amenitiesDiv = null, terms = null, termsDays = null;
+            List<WebElement> bedElements = null, amenitiesElements = null;
             StringBuilder beds = new StringBuilder();
-            for (WebElement bedElement : bedElements) {
-                beds.append(bedElement.getText()).append(" ");
+            StringBuilder amenities = new StringBuilder();
+            String checkInTime = "", checkOutTime = "";
+            try {
+                roomTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("h2.s-title span")));
+            } catch (Exception e) {
+                System.out.println("Room title not found: " + e.getMessage());
+            }
+            try {
+                price = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.heading.s-separator > span.price")));
+            } catch (Exception e) {
+                System.out.println("Room price not found: " + e.getMessage());
+            }
+            try {
+                amenitiesDiv = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.content-block.amenities.s-separator.clearfix")));
+                amenitiesElements = amenitiesDiv.findElements(By.cssSelector("li.amenity .amenity-text span"));
+                amenities = new StringBuilder();
+                //System.out.println("Amenities: " + amenitiesElements.toString());
+                //System.out.println(amenitiesDiv.getAttribute("innerHTML"));
+                for (WebElement amenityElement : amenitiesElements) {
+                    //amenities.append(amenityElement.getAttribute("aria-label")).append(", ");
+                    amenities.append(amenityElement.getText()).append(", ");
+
+                }
+                if (!amenities.isEmpty()) {
+                    amenities.deleteCharAt(amenities.lastIndexOf(", "));
+                }
+            } catch (Exception e) {
+                System.out.println("Room amenities not found: " + e.getMessage());
             }
 
-            softAssert.assertTrue(roomAccommodates.isDisplayed(),"The number of accomodates is not shown");
-            softAssert.assertTrue(size.isDisplayed(),"The size is not shown");
-            softAssert.assertTrue(beds.isEmpty(),"The beds are not shown");
-            softAssert.assertTrue(image.isDisplayed(),"The image is not shown");
-            softAssert.assertFalse(checkInTime.isEmpty(), "Check-In time is not shown");
-            softAssert.assertFalse(checkOutTime.isEmpty(),  "Check-Out time is not shown");
-            softAssert.assertTrue(policies.isDisplayed(),"The read policy link is not shown");
+            try {
+                roomAccommodates = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("li.accomodates > span[ng-bind='room.maxPersons']")));
+            } catch (Exception e) {
+                System.out.println("Room accommodates not found: " + e.getMessage());
+            }
 
-            System.out.println("Room Title: " + roomTitle.getText());
-            System.out.println("Room Accommodates: " + Integer.parseInt(roomAccommodates.getText()));
-            System.out.println("Room Size: " + size.getText() + "sq m");
-            System.out.println("Room Beds: " + beds);
-            System.out.println("Room Image Link: " + image.getText());
-            System.out.println("Room Check In: " + checkInTime);
-            System.out.println("Room Check Out: " + checkOutTime);
-            System.out.println("Room Policies: " + policies.getAttribute("href"));
+            try {
+                desc = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.content-block.s-separator.description.s-description > p")));
+            } catch (Exception e) {
+                System.out.println("Room description not found: " + e.getMessage());
+            }
+
+            try {
+                size = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("li.size > abbr")));
+            } catch (Exception e) {
+                System.out.println("Room size not found: " + e.getMessage());
+            }
+
+            try {
+                //image = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.preview.single img")));
+                // Updated CSS Selector to target the visible image
+                image = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.preview.image.visible img")));
+
+            } catch (Exception e) {
+                System.out.println("Room image not found: " + e.getMessage());
+            }
+
+            try {
+                contentBlock = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".content-block.s-separator.terms.clearfix")));
+                checkInTimeElement = contentBlock.findElement(By.xpath(".//li[span[@stranslate='rooms.widget.CHECK_IN']]//span[@stranslate and not(@stranslate='rooms.widget.CHECK_IN')]"));
+                checkInTime = checkInTimeElement.getText().trim();
+                checkOutTimeElement = contentBlock.findElement(By.xpath(".//li[span[@stranslate='rooms.widget.CHECK_OUT']]//span[@stranslate and not(@stranslate='rooms.widget.CHECK_OUT')]"));
+                checkOutTime = checkOutTimeElement.getText().trim();
+            } catch (Exception e) {
+                System.out.println("Check-In/Check-Out time not found: " + e.getMessage());
+            }
+
+            try {
+                policies = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("li.policy-link a.policies")));
+            } catch (Exception e) {
+                System.out.println("Policies link not found: " + e.getMessage());
+            }
+            try {
+                terms = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.min-stay span.strans")));
+                termsDays = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.min-stay span[ng-bind='hotel.minimumStay']")));
+            } catch (Exception e) {
+                System.out.println("Terms not found: " + e.getMessage());
+            }
+
+            try {
+                featuresSection = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".features")));
+                bedsElement = featuresSection.findElement(By.cssSelector(".beds"));
+                bedElements = bedsElement.findElements(By.cssSelector("span.bed"));
+                beds = new StringBuilder();
+                for (WebElement bedElement : bedElements) {
+                    beds.append(bedElement.getText()).append(" ");
+                }
+            } catch (Exception e) {
+                System.out.println("Beds information not found: " + e.getMessage());
+            }
+
+            softAssert.assertTrue(roomAccommodates != null && roomAccommodates.isDisplayed(),
+                    "Room Title: " + (roomTitle != null ? roomTitle.getText() : "Unknown") + " - The number of accommodates is not shown");
+            softAssert.assertTrue(price != null && price.isDisplayed(),
+                    "Room Title: " + (roomTitle != null ? roomTitle.getText() : "Unknown") + " - The price is not shown");
+            softAssert.assertTrue(size != null && size.isDisplayed(),
+                    "Room Title: " + (roomTitle != null ? roomTitle.getText() : "Unknown") + " - The size is not shown");
+            softAssert.assertTrue(!beds.toString().isEmpty(),
+                    "Room Title: " + (roomTitle != null ? roomTitle.getText() : "Unknown") + " - The beds are not shown");
+            softAssert.assertTrue(desc != null && desc.isDisplayed(),
+                    "Room Title: " + (roomTitle != null ? roomTitle.getText() : "Unknown") + " - The description is not shown");
+            softAssert.assertTrue(amenitiesElements != null && !amenities.isEmpty(),
+                    "Room Title: " + (roomTitle != null ? roomTitle.getText() : "Unknown") + " - The amenities are not shown");
+            softAssert.assertTrue(image != null && image.isDisplayed(),
+                    "Room Title: " + (roomTitle != null ? roomTitle.getText() : "Unknown") + " - The image is not shown");
+            softAssert.assertFalse(checkInTime.isEmpty(),
+                    "Room Title: " + (roomTitle != null ? roomTitle.getText() : "Unknown") + " - Check-In time is not shown");
+            softAssert.assertFalse(checkOutTime.isEmpty(),
+                    "Room Title: " + (roomTitle != null ? roomTitle.getText() : "Unknown") + " - Check-Out time is not shown");
+            softAssert.assertTrue(terms != null && terms.isDisplayed(),
+                    "Room Title: " + (roomTitle != null ? roomTitle.getText() : "Unknown") + " - Terms are not shown");
+            softAssert.assertTrue(termsDays != null && termsDays.isDisplayed(),
+                    "Room Title: " + (roomTitle != null ? roomTitle.getText() : "Unknown") + " - Terms days are not shown");
+            softAssert.assertTrue(policies != null && policies.isDisplayed(),
+                    "Room Title: " + (roomTitle != null ? roomTitle.getText() : "Unknown") + " - The read policy link is not shown");
+
+            if (roomTitle != null) {
+                System.out.println("Room Title: " + roomTitle.getText());
+            }
+            if (price != null) {
+                System.out.println("Room Price: " + price.getText());
+            }
+            if (roomAccommodates != null) {
+                System.out.println("Room Accommodates: " + Integer.parseInt(roomAccommodates.getText()));
+            }
+            if (size != null) {
+                System.out.println("Room Size: " + size.getText() + "sq m");
+            }
+            if (!beds.isEmpty()) {
+                System.out.println("Room Beds: " + beds);
+            }
+            if (!amenities.isEmpty()) {
+                System.out.println("Room Amenities: " + amenities);
+            }
+            if (desc != null) {
+                System.out.println("Room Info: " + desc.getText());
+            }
+            if (image != null) {
+                System.out.println("Room Image Link: " + image.getAttribute("src"));
+            }
+            if (checkInTime != null) {
+                System.out.println("Room Check In: " + checkInTime);
+            }
+            if (checkOutTime != null) {
+                System.out.println("Room Check Out: " + checkOutTime);
+            }
+            if (terms != null && termsDays != null) {
+                System.out.println("Room Terms: " + terms.getText() + ": " + termsDays.getText());
+            }
+            if (policies != null) {
+                System.out.println("Room Policies: " + policies.getAttribute("href"));
+            }
             System.out.println("------------------------");
 
 
@@ -566,7 +682,6 @@ public class RoomsPage {
         return maxAccommodates;
 
     }
-
 
 
 }
