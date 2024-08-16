@@ -60,16 +60,10 @@ public class Footer {
         footer.findElement(By.xpath("//*[.='ADDRESS']"));
         WebElement addressContent = footer.findElement(By.id("i71wvfxg"));
 
+        Assert.assertTrue(addressContent.isDisplayed());
         Assert.assertEquals(addressContent.getText(), "500 Terry Francois Street\n" +
                 "San Francisco, CA 94158", "Text not correct!");
-        /*
-        if (addressContent.isDisplayed()) {
-            System.out.println("Address is displayed: " + addressContent.getText());
-        } else {
-            System.out.println("Address is not displayed.");
-        }
 
-         */
     }
 
     @Test
@@ -84,9 +78,10 @@ public class Footer {
 
         WebElement footer = wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("footer")));
         footer.findElement(By.xpath("//*[.='CONTACT']"));
-        WebElement addressContent = footer.findElement(By.id("i71ww6nk"));
+        WebElement contactContent = footer.findElement(By.id("i71ww6nk"));
 
-        Assert.assertEquals(addressContent.getText(), "info@mysite.com\nTel: 123-456-7890", "Text not correct!");
+        Assert.assertTrue(contactContent.isDisplayed());
+        Assert.assertEquals(contactContent.getText(), "info@mysite.com\nTel: 123-456-7890", "Text not correct!");
     }
 
     @Test
@@ -129,7 +124,6 @@ public class Footer {
 
     }
 
-
     @Test
     public void verifyPayInfo() {
 
@@ -139,6 +133,8 @@ public class Footer {
         driver.manage().timeouts().implicitlyWait(Duration.of(10, ChronoUnit.SECONDS));
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        SoftAssert softAssert = new SoftAssert();
 
         WebElement footer = wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("footer")));
         footer.findElement(By.xpath("//*[.='WE ACCEPT']"));
@@ -150,16 +146,38 @@ public class Footer {
 
         for (WebElement item : galleryItems) {
             WebElement image = item.findElement(By.cssSelector("img"));
-            Assert.assertNotNull(image, "Image not found in gallery item");
+            softAssert.assertNotNull(image, "Image not found in gallery item");
 
             String src = image.getAttribute("src");
-            Assert.assertTrue(src.startsWith("https://"), "Image URL is not shown: " + src);
+            softAssert.assertTrue(src.startsWith("https://"), "Image URL is not shown: " + src);
 
 
-    }}
+        }
+        softAssert.assertAll();
+    }
 
     @Test
-    public void socialMediaButtons() throws InterruptedException {
+    public void verifyMail() {
+
+        driver.get("https://ancabota09.wixsite.com/intern");
+
+        driver.manage().timeouts().implicitlyWait(Duration.of(10, ChronoUnit.SECONDS));
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        WebElement footer = wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("footer")));
+        footer.findElement(By.xpath("//*[.='CONTACT']"));
+        WebElement contactContent = footer.findElement(By.id("i71ww6nk"));
+
+        WebElement mailAddressContent = contactContent.findElement(By.cssSelector("p a"));
+
+        Assert.assertTrue(mailAddressContent.isDisplayed());
+        Assert.assertTrue(mailAddressContent.getAttribute("href").contains("info@mysite.com"), "Mail not correct!");
+        Assert.assertTrue(mailAddressContent.getAttribute("href").contains("mailto:"), "Must have 'mailto:' to redirect to an email app");
+    }
+
+    @Test
+    public void socialMediaButtons() {
 
         driver.get("https://ancabota09.wixsite.com/intern");
 
@@ -180,7 +198,7 @@ public class Footer {
 
         softAssert.assertNotEquals(url,newUrl,"facebook link was not accesed ");
         String expectedUrl = "https://www.facebook.com/wix";
-        softAssert.assertEquals(newUrl, expectedUrl, "incorrect facebook link");
+        softAssert.assertTrue(newUrl.contains(expectedUrl), "incorrect facebook link");
         driver.close();
         driver.switchTo().window(homePageWindow);
 
@@ -193,8 +211,12 @@ public class Footer {
         newUrl = driver.getCurrentUrl();
 
         softAssert.assertNotEquals(url,newUrl,"twitter link was not accesed ");
-        expectedUrl = "https://x.com/wix?mx=2";
-        softAssert.assertEquals(newUrl, expectedUrl, "incorrect twitter link");
+        expectedUrl = "https://x.com/wix";
+        softAssert.assertTrue(newUrl.contains(expectedUrl), "incorrect twitter link");
+        /* sometimes it gets additional parameters in the url path, so I decided to use String.contains method
+        Actual :https://x.com/wix?mx=2
+        Expected   :https://x.com/wix
+         */
         driver.close();
         driver.switchTo().window(homePageWindow);
 
@@ -208,7 +230,7 @@ public class Footer {
 
         softAssert.assertNotEquals(url,newUrl,"pinterest link was not accesed ");
         expectedUrl = "https://www.pinterest.com/wixcom/";
-        softAssert.assertEquals(newUrl, expectedUrl, "incorrect pinterest link");
+        softAssert.assertTrue(newUrl.contains(expectedUrl), "incorrect pinterest link");
         driver.close();
         driver.switchTo().window(homePageWindow);
 
