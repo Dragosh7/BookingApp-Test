@@ -44,7 +44,7 @@ public class Explore {
     }
 
     @AfterClass
-    public void afterClass() throws InterruptedException{
+    public void afterClass() throws InterruptedException {
 
         Thread.sleep(1000);
         driver.quit();
@@ -53,19 +53,19 @@ public class Explore {
 
     @Test
     public void explorePage() {
-            SoftAssert softAssert = new SoftAssert();
-            driver.get("https://ancabota09.wixsite.com/intern");
+        SoftAssert softAssert = new SoftAssert();
+        driver.get("https://ancabota09.wixsite.com/intern");
 
-            WebElement button = driver.findElement(By.id("i6kl732v1label"));
-            driver.manage().timeouts().implicitlyWait(Duration.of(10, ChronoUnit.SECONDS));
+        WebElement button = driver.findElement(By.id("i6kl732v1label"));
+        driver.manage().timeouts().implicitlyWait(Duration.of(10, ChronoUnit.SECONDS));
 
-            button.click();
+        button.click();
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-            wait.until(ExpectedConditions.urlContains("https://ancabota09.wixsite.com/intern/explore"));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.urlContains("https://ancabota09.wixsite.com/intern/explore"));
 
-            String currentUrl = driver.getCurrentUrl();
-            softAssert.assertEquals(currentUrl, "https://ancabota09.wixsite.com/intern/explore", "Bad redirect");
+        String currentUrl = driver.getCurrentUrl();
+        softAssert.assertEquals(currentUrl, "https://ancabota09.wixsite.com/intern/explore", "Bad redirect");
 
         WebElement brushIcon = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//wow-image[@data-image-info[contains(., '9c608a_40c6a63735ab47b096691cfd25e22168.png')]]/img")));
         WebElement cleaningServicesText = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//p[@class='font_8 wixui-rich-text__text']/span[text()='Cleaning Services']")));
@@ -81,7 +81,6 @@ public class Explore {
 
         WebElement airplaneIcon = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//wow-image[@data-image-info[contains(., '9c608a_b7451c0859164f889f85d82de735148e.png')]]/img")));
         WebElement airportText = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//p[@class='font_8 wixui-rich-text__text']/span[text()='Airport Transfers']")));
-
 
 
         softAssert.assertTrue((brushIcon.isDisplayed()), "brush icon is not displayed");
@@ -104,16 +103,16 @@ public class Explore {
         WebElement haightParagraph = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"i6kvbhmb\"]/p[4]")));
         WebElement goldenGateParagraph = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"i6kvbkw0\"]/p[4]")));
 
-        softAssert.assertNotEquals(paragraph.getText(),"I'm a paragraph. Click here to add your own text and edit me. It’s easy. Just click “Edit Text” or double click me to add your own content and make changes to the font. Feel free to drag and drop me anywhere you like on your page. I’m a great place for you to tell a story and let your users know a little more about you.",
+        softAssert.assertNotEquals(paragraph.getText(), "I'm a paragraph. Click here to add your own text and edit me. It’s easy. Just click “Edit Text” or double click me to add your own content and make changes to the font. Feel free to drag and drop me anywhere you like on your page. I’m a great place for you to tell a story and let your users know a little more about you.",
                 "it's a default template paragraph");
 
-        softAssert.assertNotEquals(chinaParagraph.getText(),"I'm a paragraph. Click here to add your own text and edit me. I’m a great place for you to tell a story and let your users know a little more about you.",
+        softAssert.assertNotEquals(chinaParagraph.getText(), "I'm a paragraph. Click here to add your own text and edit me. I’m a great place for you to tell a story and let your users know a little more about you.",
                 "it's a default template paragraph for Chinatown");
 
-        softAssert.assertNotEquals(haightParagraph.getText(),"I'm a paragraph. Click here to add your own text and edit me. I’m a great place for you to tell a story and let your users know a little more about you.",
+        softAssert.assertNotEquals(haightParagraph.getText(), "I'm a paragraph. Click here to add your own text and edit me. I’m a great place for you to tell a story and let your users know a little more about you.",
                 "it's a default template paragraph for Haight & Ashbury ");
 
-        softAssert.assertNotEquals(goldenGateParagraph.getText(),"I'm a paragraph. Click here to add your own text and edit me. I’m a great place for you to tell a story and let your users know a little more about you.",
+        softAssert.assertNotEquals(goldenGateParagraph.getText(), "I'm a paragraph. Click here to add your own text and edit me. I’m a great place for you to tell a story and let your users know a little more about you.",
                 "it's a default template paragraph for Golden Gate Bridge ");
 
         softAssert.assertAll();
@@ -121,6 +120,81 @@ public class Explore {
 
     }
 
+    @Test
+    public void explorePageImproved() {
+        // retrieving the amenities info dynamically
+        SoftAssert softAssert = new SoftAssert();
+        driver.get("https://ancabota09.wixsite.com/intern");
+
+        WebElement button = driver.findElement(By.id("i6kl732v1label"));
+        driver.manage().timeouts().implicitlyWait(Duration.of(10, ChronoUnit.SECONDS));
+
+        button.click();
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.urlContains("https://ancabota09.wixsite.com/intern/explore"));
+
+        String currentUrl = driver.getCurrentUrl();
+        Assert.assertEquals(currentUrl, "https://ancabota09.wixsite.com/intern/explore", "Bad redirect");
+
+
+        List<WebElement> amenityContainers = driver.findElements(By.xpath("//div[contains(@class, 'MazNVa')]"));
+        List<WebElement> amenityTextElements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(
+                By.xpath("//div[contains(@class, 'HcOXKn') and contains(@class, 'wixui-rich-text')]//p//span[contains(@class, 'color_15')]")
+        ));
+        int j = 0;
+        System.out.println(amenityContainers.size());
+        System.out.println(amenityTextElements.size());
+        softAssert.assertFalse(amenityContainers.isEmpty(),"There are no amenities images displayed");
+        softAssert.assertFalse(amenityTextElements.isEmpty(),"There are no amenities text displayed");
+        for (int i = 0; i < amenityContainers.size(); i++) {
+            WebElement container = amenityContainers.get(i);
+
+            try {
+                WebElement icon = container.findElement(By.cssSelector("wow-image img"));
+                int width = Integer.parseInt(icon.getCssValue("width").replace("px", "").trim());
+                if (width >= 100) {
+                    continue;
+                }
+
+                String iconUrl = icon.getAttribute("src");
+                System.out.println("Image URL: " + iconUrl);
+
+                if (j < amenityTextElements.size()) {
+                    WebElement textElement = amenityTextElements.get(j);
+                    String title = textElement.getText();
+                    System.out.println("Amenity Text: " + title);
+                } else {
+                    System.out.println("No matching text element found for container index: " + i);
+                }
+                j++;
+                System.out.println("--------------------------------");
+            } catch (Exception e) {
+                System.out.println("Amenity container found, but missing expected elements. Container HTML: " + container.getAttribute("outerHTML"));
+            }
+        }
+
+        WebElement paragraph = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"i6kvh3dl\"]/p/span")));
+        WebElement chinaParagraph = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"i6kv3ge8\"]/p[4]")));
+        WebElement haightParagraph = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"i6kvbhmb\"]/p[4]")));
+        WebElement goldenGateParagraph = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"i6kvbkw0\"]/p[4]")));
+
+        softAssert.assertNotEquals(paragraph.getText(), "I'm a paragraph. Click here to add your own text and edit me. It’s easy. Just click “Edit Text” or double click me to add your own content and make changes to the font. Feel free to drag and drop me anywhere you like on your page. I’m a great place for you to tell a story and let your users know a little more about you.",
+                "it's a default template paragraph");
+
+        softAssert.assertNotEquals(chinaParagraph.getText(), "I'm a paragraph. Click here to add your own text and edit me. I’m a great place for you to tell a story and let your users know a little more about you.",
+                "it's a default template paragraph for Chinatown");
+
+        softAssert.assertNotEquals(haightParagraph.getText(), "I'm a paragraph. Click here to add your own text and edit me. I’m a great place for you to tell a story and let your users know a little more about you.",
+                "it's a default template paragraph for Haight & Ashbury ");
+
+        softAssert.assertNotEquals(goldenGateParagraph.getText(), "I'm a paragraph. Click here to add your own text and edit me. I’m a great place for you to tell a story and let your users know a little more about you.",
+                "it's a default template paragraph for Golden Gate Bridge ");
+
+        softAssert.assertAll();
+
+
+    }
 
 
 }
