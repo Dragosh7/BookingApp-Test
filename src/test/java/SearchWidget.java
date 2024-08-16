@@ -74,9 +74,9 @@ public class SearchWidget {
             throw new org.openqa.selenium.WebDriverException("Failed to click element after multiple attempts: " + xpath);
         }
     }
+
     @Test
     public void Calendar() throws InterruptedException {
-
 
         driver.get("https://ancabota09.wixsite.com/intern");
 
@@ -84,12 +84,9 @@ public class SearchWidget {
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
-        // i frame       search widget id : i6kppi75
         driver.switchTo().frame(iframe);
 
-        //driver.findElement(By.id("check-in")).click();
         WebElement checkInField = driver.findElement(By.id("check-in"));
-
         checkInField.click();
 
         driver.switchTo().defaultContent(); //back to main
@@ -108,17 +105,11 @@ public class SearchWidget {
 
         String xpath = String.format("//button[@aria-label='%s']", formattedDate);
         System.out.println(xpath);
-        WebElement dateButtonCheckIn = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
-        //dateButtonCheckIn.click();
         clickWithRetry(xpath);
-
-        /*driver.switchTo().frame(iframe);
-        checkOutField.click();*/
 
         driver.switchTo().defaultContent(); //back to main
         WebElement checkOutFrame = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("U73P_q")));
         driver.switchTo().frame(checkOutFrame); //to check-out frame
-
 
         LocalDate[] datesToCheck = {today, yesterday, tomorrow, threeDaysFromNow, fourDaysFromNow , fiveDaysFromNow};
 
@@ -161,8 +152,7 @@ public class SearchWidget {
         }
 
         driver.switchTo().defaultContent();
-        WebDriver calendarFrame = wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.xpath("//*[@id=\"i6kppi75\"]/iframe")));
-
+        driver.switchTo().frame(iframe);
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH);
 
         String verifyCheckOut = driver.findElement(By.id("check-out-value")).getText();
@@ -174,7 +164,7 @@ public class SearchWidget {
     }
 
     @Test
-    public void Adults() {
+    public void Adults() throws InterruptedException {
 
 
         driver.get("https://ancabota09.wixsite.com/intern");
@@ -183,18 +173,17 @@ public class SearchWidget {
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
-        //searchWidget frame
         driver.switchTo().frame(iframe);
 
         Random random = new Random();
         int randomClicks = 5 + random.nextInt(21);
 
+        Thread.sleep(1000);
         WebElement adultsButtonIncr = driver.findElement(By.cssSelector("#adults > .up"));
         adultsButtonIncr.click();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated((By.xpath("//*[@id=\"adults\"]"))));
         Assert.assertEquals(driver.findElement(By.xpath("//*[@id=\"adults\"]")).getAttribute("aria-valuenow"), "2","Button did not increment the number of adults");
-        //System.out.println(driver.findElement(By.xpath("//*[@id=\"adults\"]")).getAttribute("aria-valuenow"));
 
         WebElement adultsButtonDecr = driver.findElement(By.cssSelector("#adults > .down"));
         adultsButtonDecr.click();
@@ -219,7 +208,7 @@ public class SearchWidget {
     }
 
     @Test
-    public void Kids() {
+    public void Kids() throws InterruptedException {
 
 
         driver.get("https://ancabota09.wixsite.com/intern");
@@ -228,12 +217,12 @@ public class SearchWidget {
 
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
-        //searchWidget frame
         driver.switchTo().frame(iframe);
 
         Random random = new Random();
         int randomClicks = 5 + random.nextInt(21);
 
+        Thread.sleep(1000);
         WebElement kidsButtonIncr = driver.findElement(By.cssSelector("#children > .up"));
         kidsButtonIncr.click();
 
@@ -279,7 +268,6 @@ public class SearchWidget {
         WebElement iframe = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("nKphmK")));
         driver.switchTo().frame(iframe);
 
-        //driver.findElement(By.id("check-in")).click();
         WebElement checkInField = driver.findElement(By.id("check-in"));
         checkInField.click();
 
@@ -307,7 +295,7 @@ public class SearchWidget {
         clickWithRetry(xpath); //check out date button to set
 
         driver.switchTo().defaultContent();
-        WebDriver calendarFrame = wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.xpath("//*[@id=\"i6kppi75\"]/iframe")));
+        wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.xpath("//*[@id=\"i6kppi75\"]/iframe")));
 
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH);
 
