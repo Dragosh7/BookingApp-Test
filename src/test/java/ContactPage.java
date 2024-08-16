@@ -37,6 +37,7 @@ public class ContactPage {
         options.addArguments("--disable-search-engine-choice-screen");
         // options.addArguments("--remote-allow-origins=*");
         driver = new ChromeDriver(options);
+        driver.manage().window().maximize();
     }
 
     @AfterClass
@@ -48,7 +49,7 @@ public class ContactPage {
     }
 
     @Test
-    public void submitFunction() {
+    public void submitFunction() throws InterruptedException {
 
         SoftAssert softAssert = new SoftAssert();
         driver.get("https://ancabota09.wixsite.com/intern");
@@ -76,7 +77,7 @@ public class ContactPage {
         softAssert.assertTrue(messageField.isDisplayed(), "Message field is not displayed");
         softAssert.assertTrue(submitButton.isDisplayed(), "Submit button is not displayed");
 
-
+        Thread.sleep(1000);
         nameField.sendKeys("John");
         wait.until(ExpectedConditions.textToBePresentInElementValue(nameField, "John"));
 
@@ -89,15 +90,18 @@ public class ContactPage {
         messageField.sendKeys("Message!");
         wait.until(ExpectedConditions.textToBePresentInElementValue(messageField, "Message!"));
 
+        //before clicking submit
+        WebElement submitFeedback = driver.findElement(By.xpath("//*[@id=\"comp-jxbsa1fv\"]/p/span"));
+        softAssert.assertTrue(submitFeedback.getText().isEmpty() || submitFeedback.getText().isBlank(), "Thanks for submitting message is visible before clicking submit");
+
         submitButton.click();
 
-        WebElement submitFeedback = driver.findElement(By.xpath("//*[@id=\"comp-jxbsa1fv\"]/p/span"));
-        softAssert.assertFalse(submitFeedback.getText().isEmpty() || submitFeedback.getText().isBlank());
+        softAssert.assertFalse(submitFeedback.getText().isEmpty() || submitFeedback.getText().isBlank(), "Thanks for submitting message must be visible after clicking submit");
         softAssert.assertAll();
     }
 
     @Test
-    public void emailValidation() {
+    public void emailValidation() throws InterruptedException {
 
         SoftAssert softAssert = new SoftAssert();
         driver.get("https://ancabota09.wixsite.com/intern");
@@ -125,7 +129,7 @@ public class ContactPage {
         softAssert.assertTrue(messageField.isDisplayed(), "Message field is not displayed");
         softAssert.assertTrue(submitButton.isDisplayed(), "Submit button is not displayed");
 
-
+        Thread.sleep(1000);
         nameField.sendKeys("John");
         wait.until(ExpectedConditions.textToBePresentInElementValue(nameField, "John"));
 
@@ -146,7 +150,7 @@ public class ContactPage {
     }
 
     @Test
-    public void phoneValidation() {
+    public void phoneValidation() throws InterruptedException {
 
         SoftAssert softAssert = new SoftAssert();
         driver.get("https://ancabota09.wixsite.com/intern");
@@ -162,6 +166,7 @@ public class ContactPage {
         String currentUrl = driver.getCurrentUrl();
         softAssert.assertEquals(currentUrl, "https://ancabota09.wixsite.com/intern/contact", "Bad redirect");
 
+        Thread.sleep(1000);
         WebElement nameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"input_comp-jxbsa1e9\"]")));
         WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"input_comp-jxbsa1em\"]")));
         WebElement phoneField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"input_comp-jxbsa1ev\"]")));
@@ -191,6 +196,7 @@ public class ContactPage {
 
         softAssert.assertEquals(phoneField.getAttribute("aria-invalid"), "true","The form accepted an invalid phone");
 
+        Thread.sleep(1000);
         phoneField.clear();
         phoneField.sendKeys(Keys.CONTROL + "a");
         phoneField.sendKeys(Keys.DELETE);
